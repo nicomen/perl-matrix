@@ -1,7 +1,8 @@
 # Reusable CPAN-smoker-style test matrix for Perl distributions.
 #
 # Covers the environments that show up on CPAN Testers: Linux across old and
-# modern perls, FreeBSD and Solaris with their stock perls, and Cygwin.
+# modern perls, Windows (Strawberry), FreeBSD and Solaris with their stock
+# perls, and Cygwin.
 # Every job runs `cpanm --installdeps`, then `perl Makefile.PL && make &&
 # make test`, like the smokers do.
 #
@@ -41,6 +42,10 @@ on:
         description: Run the Solaris job
         type: boolean
         default: true
+      windows-perl-versions:
+        description: JSON array of perl versions for the Windows (Strawberry) matrix ("[]" disables the job)
+        type: string
+        default: '["5.38","5.40"]'
 
 env:
   AUTOMATED_TESTING: 1
@@ -77,6 +82,39 @@ jobs:
           perl Makefile.PL
           make
           make test
+
+  windows:
+    if: ${{ inputs.windows-perl-versions != '[]' }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        perl: ${{ fromJSON(inputs.windows-perl-versions) }}
+
+    name: Windows Strawberry perl ${{ matrix.perl }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: ${{ matrix.perl }}
+          distribution: strawberry
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          cpanm --notest --installdeps .
+          mods='${{ inputs.extra-modules }}'
+          [ -z "$mods" ] || cpanm --notest $mods
+
+      - name: Build and test
+        shell: bash
+        run: |
+          perl Makefile.PL
+          gmake
+          gmake test
 
   freebsd:
     if: ${{ inputs.freebsd-releases != '[]' }}

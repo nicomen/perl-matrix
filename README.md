@@ -5,8 +5,8 @@ CPAN smokers do: `cpanm --installdeps .`, then
 `perl Makefile.PL && make && make test`.
 
 It covers the environments that show up on CPAN Testers: Linux across old
-and modern perls (5.10 through 5.44), FreeBSD and Solaris with their stock
-perls, and Cygwin.
+and modern perls (5.10 through 5.44), Windows (Strawberry Perl), FreeBSD
+and Solaris with their stock perls, and Cygwin.
 
 ## Use
 
@@ -26,6 +26,7 @@ All optional:
 |-------|---------|---------|
 | `perl-versions` | `5.10` … `5.44` | JSON array for the Linux matrix |
 | `freebsd-releases` | `["14.3","15.0"]` | FreeBSD releases; `[]` disables the job |
+| `windows-perl-versions` | `["5.38","5.40"]` | Strawberry perls for the Windows matrix; `[]` disables the job |
 | `extra-modules` | none | Extra CPAN modules to install beyond declared deps |
 | `cygwin` | `true` | Run the Cygwin job |
 | `solaris` | `true` | Run the Solaris job |
