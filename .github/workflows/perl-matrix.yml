@@ -102,19 +102,17 @@ jobs:
           perl-version: ${{ matrix.perl }}
           distribution: strawberry
 
+      # Strawberry's toolchain mishandles Git Bash's /d/... paths
+      # (configure ends with "No MYMETA file"), so stay in PowerShell
       - name: Install dependencies
-        shell: bash
         run: |
           cpanm --notest --installdeps .
-          mods='${{ inputs.extra-modules }}'
-          [ -z "$mods" ] || cpanm --notest $mods
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $mods = '${{ inputs.extra-modules }}'.Trim()
+          if ($mods) { cpanm --notest $mods.Split(' ') }
 
       - name: Build and test
-        shell: bash
-        run: |
-          perl Makefile.PL
-          gmake
-          gmake test
+        run: perl Makefile.PL && gmake && gmake test
 
   freebsd:
     if: ${{ inputs.freebsd-releases != '[]' }}
